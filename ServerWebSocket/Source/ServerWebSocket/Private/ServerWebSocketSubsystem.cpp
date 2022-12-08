@@ -69,23 +69,11 @@ void UServerWebSocketSubsystem::ReceivedRawPacket(void* Data, int32 Count)
 		return;
 	}
 
-	uint8* DataRef = reinterpret_cast<uint8*>(Data);
+	const uint8* DataRef = reinterpret_cast<uint8*>(Data);
 
-	FString JsonData = UTF8_TO_TCHAR(DataRef);
+	const TArray<uint8> MessageData(DataRef, Count);
 
-	if (JsonData.StartsWith(TEXT("{")))
-	{
-		int32 index = INDEX_NONE;
-		JsonData.FindLastChar(*TEXT("}"), index);
+	const FString JSonData = UTF8_TO_TCHAR(MessageData.GetData());
 
-		if (index != INDEX_NONE)
-		{
-			if (index < JsonData.Len() - 1)
-			{
-				JsonData.RemoveAt(index + 1, JsonData.Len() - index);
-			}
-			
-			OnJsonRecieved.Broadcast(JsonData);
-		}
-	}
+	OnJsonRecieved.Broadcast(JSonData);
 }
